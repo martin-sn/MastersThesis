@@ -1,8 +1,12 @@
+import pandas as pd
+import numpy as np
+import matplotlib as plt
 from tqdm.notebook import tqdm, trange
 import re
 import os
+pd.options.mode.chained_assignment = None
 
-freq = 60
+freq = 300
 
 
 
@@ -21,7 +25,7 @@ def read_files(folder,crypto):
     df = df.reset_index(drop=True)
     return(df)
 
-folder = 'crypto-rl/data_recorder/database/data_exports/1min'
+folder = 'data/raw/5min'
 
 
 BTC_df = read_files(folder,'BTC')
@@ -50,7 +54,7 @@ print("MISSING ADA: " + str(check_for_missing(ADA_df, freq = freq)))
 def Returns(df):
     df["Return"] = np.nan
     #df["Return"] = np.diff(df["midpoint"]) / df["midpoint"][:(len(df)-1)]
-    rt = diff(np.log(df["midpoint"]))
+    rt = np.diff(np.log(df["midpoint"]))
     df = df[:-1]
     df["Return"] = rt
     
@@ -233,14 +237,14 @@ def PreAvg(df, freq, k):
         for i in range(K-1):
             r_pa = r_pa + kernel(i/k)*r[i:(len(r)+i-(k-1))]
     
-        idx = array(range(k))/k
+        idx = np.array(range(k))/k
         
         g = np.zeros(shape=len(idx))
         
         for i in range(len(idx)):
             g[i] = kernel(idx[i])
         
-        dg = diff(g)
+        dg = np.diff(g)
         psi1 = sum(dg**2)*k
         psi2 = sum(g**2)/k
         
@@ -272,7 +276,7 @@ def SpotVolatility(df,freq):
     df["ASV"] = np.nan
     
     for i in trange(len(df)):
-        df["ASV"][i+freq] = mean(df["SV"][i:(i+freq)])
+        df["ASV"][i+freq] = np.mean(df["SV"][i:(i+freq)])
         
     return(df)
 
@@ -331,9 +335,9 @@ def GenerateFeatures(df, freq):
     
     return(df)
 
-Feature_df = GenerateFeatures(BTC_df,60)
-Feature_df.to_csv("BTC_df_final.csv", index = False)
-Feature_df = GenerateFeatures(ETH_df,60)
-Feature_df.to_csv("ETH_df_final.csv", index = False)
-Feature_df = GenerateFeatures(ADA_df,60)
-Feature_df.to_csv("ADA_df_final.csv", index = False)
+Feature_df = GenerateFeatures(BTC_df,18)
+Feature_df.to_csv("BTC.csv", index = False)
+Feature_df = GenerateFeatures(ETH_df,18)
+Feature_df.to_csv("ETH.csv", index = False)
+Feature_df = GenerateFeatures(ADA_df,18)
+Feature_df.to_csv("ADA.csv", index = False)
