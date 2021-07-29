@@ -16,7 +16,7 @@ from sklearn.metrics import classification_report
 
 
 
-callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, mode = "min", restore_best_weights = True)
+callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=100, mode = "min", restore_best_weights = True)
 
 
 
@@ -277,7 +277,7 @@ def CreateData_LSTM(data_std, Y, val_split, test_split):
     return train_lstm, val_lstm, test_lstm, Y_train_lstm, Y_val_lstm, Y_test_lstm
     
 
-def LSTM_Model_1(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
+def LSTM_Model_1(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, seed, EP):
 
     model = Sequential()
     model.add(LSTM(4, input_shape=(None, x), return_sequences = True))
@@ -285,13 +285,13 @@ def LSTM_Model_1(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
     
     model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     
-    history = model.fit(train_lstm, Y_train_lstm, epochs=25, validation_data = (val_lstm, Y_val_lstm), verbose = 0, callbacks=[callback])
+    history = model.fit(train_lstm, Y_train_lstm, epochs=EP, validation_data = (val_lstm, Y_val_lstm), verbose = 0, callbacks=[callback])
 
 
     return history, model
 
 
-def LSTM_Model_2(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
+def LSTM_Model_2(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, seed, EP):
 
     model = Sequential()
     model.add(LSTM(8, input_shape=(None, x), return_sequences = True))
@@ -300,13 +300,13 @@ def LSTM_Model_2(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
     
     model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     
-    history = model.fit(train_lstm, Y_train_lstm, epochs=25, validation_data = (val_lstm, Y_val_lstm), verbose = 0, callbacks=[callback])
+    history = model.fit(train_lstm, Y_train_lstm, epochs=EP, validation_data = (val_lstm, Y_val_lstm), verbose = 0, callbacks=[callback])
 
 
     return history, model
 
 
-def LSTM_Model_3(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
+def LSTM_Model_3(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, seed, EP):
 
     model = Sequential()
     model.add(LSTM(16, input_shape=(None, x), return_sequences = True))
@@ -316,7 +316,7 @@ def LSTM_Model_3(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
     
     model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     
-    history = model.fit(train_lstm, Y_train_lstm, epochs=25, validation_data = (val_lstm, Y_val_lstm), verbose = 0, callbacks=[callback])
+    history = model.fit(train_lstm, Y_train_lstm, epochs=EP, validation_data = (val_lstm, Y_val_lstm), verbose = 0, callbacks=[callback])
 
 
     return history, model
@@ -324,19 +324,70 @@ def LSTM_Model_3(train_lstm, Y_train_lstm, val_lstm, Y_val_lstm, x, EP):
 
 
 
-def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 150):
+def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
+
+
+    #seeds = [1, 10, 100, 123, 300, 500, 555, 999, 1000, 123456]
+
+    seeds = [1, 123, 999]
+
+
     r,x = data_std.shape
-    
 
 
 
     train_lstm, val_lstm, test_lstm, Y_train_lstm, Y_val_lstm, Y_test_lstm = CreateData_LSTM(data_std, Y, val_split, test_split)
-    
-    His1, Mod1 = LSTM_Model_1(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, EP)
-    His2, Mod2 = LSTM_Model_2(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, EP)
-    His3, Mod3 = LSTM_Model_3(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, EP)
 
-    
+    Hiss1 = []
+    Mods1 = []
+    Hiss2 = []
+    Mods2 = [] 
+    Hiss3 = []
+    Mods3 = []
+
+    for seed in seeds:
+        His1, Mod1 = LSTM_Model_1(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, seed, EP)
+        His2, Mod2 = LSTM_Model_2(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, seed, EP)
+        His3, Mod3 = LSTM_Model_3(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, seed, EP)
+
+
+        Hiss1.append(His1)
+        Mods1.append(Mod1)
+
+        Hiss2.append(His2)
+        Mods2.append(Mod2)
+
+        Hiss3.append(His3)
+        Mods3.append(Mod3)
+
+        
+    def SelectBest(His,Mod):
+
+
+        if (min(His[0].history["val_loss"]) < min(His[1].history["val_loss"])) & (min(His[0].history["val_loss"]) < min(His[2].history["val_loss"])):
+            BestHis = His[0]
+            BestMod = Mod[0]
+            print("Seed " + str(seeds[0]) + " was best") 
+
+
+        if (min(His[1].history["val_loss"]) < min(His[0].history["val_loss"])) & (min(His[1].history["val_loss"]) < min(His[2].history["val_loss"])):
+            BestHis = His[1]
+            BestMod = Mod[1]
+            print("Seed " + str(seeds[1]) + " was best") 
+
+
+        if (min(His[2].history["val_loss"]) < min(His[0].history["val_loss"])) & (min(His[2].history["val_loss"]) < min(His[1].history["val_loss"])):
+            BestHis = His[2]
+            BestMod = Mod[2]
+            print("Seed " + str(seeds[2]) + " was best") 
+
+        return BestHis, BestMod
+
+    His1, Mod1 = SelectBest(Hiss1, Mods1)
+    His2, Mod2 = SelectBest(Hiss2, Mods2)
+    His3, Mod3 = SelectBest(Hiss3, Mods3)
+
+
     
     return test_lstm, Y_test_lstm, His1, Mod1, His2, Mod2, His3, Mod3
 
