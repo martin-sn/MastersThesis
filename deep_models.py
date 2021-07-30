@@ -13,6 +13,8 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 import timeit
+from datetime import datetime
+
 
 
 
@@ -342,7 +344,6 @@ def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
     start = timeit.default_timer()
 
 
-    
 
 
 
@@ -419,7 +420,16 @@ def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
     His3, Mod3 = SelectBest(Hiss3, Mods3)
 
 
-    
+    name = "Mod1_" + name + "_" + str(datetime.now())
+    Mod1.save('models/lstm/' + name)
+
+    name = "Mod2_" + name + "_" + str(datetime.now())
+    Mod2.save('models/lstm/' + name)
+
+    name = "Mod3_" + name + "_" + str(datetime.now())
+    Mod3.save('models/lstm/' + name)
+
+
     return test_lstm, Y_test_lstm, His1, Mod1, His2, Mod2, His3, Mod3
 
 
