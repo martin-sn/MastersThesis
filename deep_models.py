@@ -420,14 +420,14 @@ def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
     His3, Mod3 = SelectBest(Hiss3, Mods3)
 
 
-    name = "Mod1_" + name + "_" + str(datetime.now())
-    Mod1.save('models/lstm/' + name)
+    model_name = "Mod1_" + str(datetime.now())
+    Mod1.save('models/lstm/' + name + "/" + model_name)
 
-    name = "Mod2_" + name + "_" + str(datetime.now())
-    Mod2.save('models/lstm/' + name)
+    model_name = "Mod2_"  + str(datetime.now())
+    Mod2.save('models/lstm/' name + "/" + model_name)
 
-    name = "Mod3_" + name + "_" + str(datetime.now())
-    Mod3.save('models/lstm/' + name)
+    model_name = "Mod3_" + str(datetime.now())
+    Mod3.save('models/lstm/' + name + "/" + model_name)
 
 
     return test_lstm, Y_test_lstm, His1, Mod1, His2, Mod2, His3, Mod3
