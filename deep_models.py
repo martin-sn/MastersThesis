@@ -12,6 +12,7 @@ from tabulate import tabulate
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
+import timeit
 
 
 
@@ -334,6 +335,16 @@ def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
 
     r,x = data_std.shape
 
+    models_trained = 0
+
+
+
+    start = timeit.default_timer()
+
+
+    
+
+
 
 
     train_lstm, val_lstm, test_lstm, Y_train_lstm, Y_val_lstm, Y_test_lstm = CreateData_LSTM(data_std, Y, val_split, test_split)
@@ -347,8 +358,28 @@ def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
 
     for seed in seeds:
         His1, Mod1 = LSTM_Model_1(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, seed, EP)
+
+        models_trained = models_trained + 1
+        stop = timeit.default_timer()
+
+
+        print(models_trained, ' trained in ', stop - start)  
+
+
         His2, Mod2 = LSTM_Model_2(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, seed, EP)
+
+        models_trained = models_trained + 1
+        stop = timeit.default_timer()
+
+        print(models_trained, ' trained in ', stop - start) 
+
+
         His3, Mod3 = LSTM_Model_3(train_lstm,Y_train_lstm,val_lstm,Y_val_lstm, x, seed, EP)
+
+        models_trained = models_trained + 1
+        stop = timeit.default_timer()
+
+        print(models_trained, ' trained in ', stop - start) 
 
 
         Hiss1.append(His1)
