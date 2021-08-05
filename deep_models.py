@@ -424,7 +424,7 @@ def Run_LSTM(data_std, Y, name, val_split, test_split, EP = 100):
     Mod1.save('models/lstm/' + name + "/" + model_name)
 
     model_name = "Mod2_"  + str(datetime.now())
-    Mod2.save('models/lstm/' name + "/" + model_name)
+    Mod2.save('models/lstm/' + name + "/" + model_name)
 
     model_name = "Mod3_" + str(datetime.now())
     Mod3.save('models/lstm/' + name + "/" + model_name)
