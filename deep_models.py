@@ -110,21 +110,24 @@ def Run_Dense(data_std, Y, name, val_split, test_split, windows = [1,5,10], EP =
         if (min(His[1].history["val_loss"]) < min(His[2].history["val_loss"])) & (min(His[1].history["val_loss"]) < min(His[3].history["val_loss"])):
             BestHis = His[1]
             BestMod = Mod[1]
+            Win = 1
             print("Window of size " + str(windows[0]) + " was best") 
 
 
         if (min(His[2].history["val_loss"]) < min(His[1].history["val_loss"])) & (min(His[2].history["val_loss"]) < min(His[3].history["val_loss"])):
             BestHis = His[2]
             BestMod = Mod[2]
+            Win = 5
             print("Window of size " + str(windows[1]) + " was best") 
 
 
         if (min(His[3].history["val_loss"]) < min(His[1].history["val_loss"])) & (min(His[3].history["val_loss"]) < min(His[2].history["val_loss"])):
             BestHis = His[3]
             BestMod = Mod[3]
+            Win = 10
             print("Window of size " + str(windows[2]) + " was best") 
 
-        return BestHis, BestMod
+        return BestHis, BestMod, Win
 
 
 
@@ -150,7 +153,7 @@ def Run_Dense(data_std, Y, name, val_split, test_split, windows = [1,5,10], EP =
         Mod.append(Mod1)
 
 
-    His1, Mod1 = SelectBest(His, Mod)
+    His1, Mod1, Win1 = SelectBest(His, Mod)
 
     His = ["x"]
     Mod = ["x"]
@@ -166,7 +169,7 @@ def Run_Dense(data_std, Y, name, val_split, test_split, windows = [1,5,10], EP =
         Mod.append(Mod2)
 
 
-    His2, Mod2 = SelectBest(His, Mod)
+    His2, Mod2, Win2 = SelectBest(His, Mod)
 
     His = ["x"]
     Mod = ["x"]
@@ -181,11 +184,20 @@ def Run_Dense(data_std, Y, name, val_split, test_split, windows = [1,5,10], EP =
         Mod.append(Mod3)
 
 
-    His3, Mod3 = SelectBest(His, Mod)
-
+    His3, Mod3, Win3 = SelectBest(His, Mod)
 
     
-    return test_sets, y_sets, His1, His2, His3, Mod1, Mod2, Mod3
+    return test_sets, y_sets, His1, His2, His3, Mod1, Mod2, Mod3, Win1, Win2, Win3
+
+
+def GetLossDense(mod, data_std, Y, window, val_split, test_split):
+    train, val, test, Y_train, Y_val, Y_test = CreateTestTrain_Dense(data_std, Y, window, val_split, test_split)
+    preds = mod.predict(test)
+    ssce = tf.keras.losses.SparseCategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
+    ssc = ssce(Y_test, preds).numpy()
+
+    return ssc
+
 
 
 #def plot(his):
@@ -487,4 +499,14 @@ def Eval_LSTM(mod, test_lstm, Y_test_lstm, split):
     print(class_rep)
 
     
+def GetLoss(mod, data_std, Y, v_split, t_split, type):
+        if type == "LSTM":
+            train_lstm, val_lstm, test_lstm, Y_train_lstm, Y_val_lstm, Y_test_lstm = CreateData_LSTM(data_std, Y, v_split, t_split)
+            preds = mod.predict(test_lstm)
+            ssce = tf.keras.losses.SparseCategoricalCrossentropy(reduction=tf.keras.losses.Reduction.NONE)
+            ssc = ssce(Y_test_lstm, preds).numpy()
+
+            return ssc
+
+
 
