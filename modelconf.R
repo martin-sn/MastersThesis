@@ -60,3 +60,35 @@ estMCS(ETH5M, test = "t.range")
 MCSprocedure(ETH5M, alpha = 0.05)
 
 colMeans(ETH5M)
+
+
+ETH1M5M = read_csv("mastersthesis/ConfSets/ETH1M5M_1min5min_conf.csv") %>% 
+  select(-X1) %>% 
+  na.omit()
+
+MCSprocedure(ETH1M5M, alpha = 0.05)
+
+ETH1M5M_5 = read_csv("mastersthesis/ConfSets/ETH1M5M_1min5min_conf.csv") %>% 
+  select(-X1) %>% 
+  slice(which(row_number() %% 5 == 1)) %>% 
+  slice(which(row_number() > 19)) %>% 
+  na.omit()
+  
+  
+  
+ETH_two <- cbind(ETH1M5M_5, ETH5M)
+
+MCSprocedure(ETH_two, alpha = 0.15)
+
+
+  
+ETH1M5M_5
+
+colnames(ETH1M5M_5) <- c("BA_DENSE_1_1min", "BA_DENSE_2_1min", "BA_DENSE_3_1min", "BA_LSTM_1_1min",  "BA_LSTM_2_1min",  "BA_LSTM_3_1min",  "OF_DENSE_1_1min",
+"OF_DENSE_2_1min", "OF_DENSE_3_1min", "OF_LSTM_1_1min",  "OF_LSTM_2_1min",  "OF_LSTM_3_1min" , "HF_DENSE_1_1min", "HF_DENSE_2_1min",
+ "HF_DENSE_3_1min", "HF_LSTM_1_1min",  "HF_LSTM_2_1min",  "HF_LSTM_3_1min")
+  
+
+
+  
+
